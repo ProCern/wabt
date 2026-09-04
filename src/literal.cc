@@ -63,7 +63,13 @@ struct FloatTraitsBase<float> {
   using Uint = uint32_t;
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 23;
-  static constexpr float kHugeVal = HUGE_VALF;
+  // Not HUGE_VALF: AIX defines it as a reinterpret_cast through a byte array,
+  // which is not a core constant expression in C++.  strtof reports overflow by
+  // returning it, and C defines it as infinity where that is representable and
+  // the largest finite value otherwise -- which is what this spells out.
+  static constexpr float kHugeVal = std::numeric_limits<float>::has_infinity
+                                        ? std::numeric_limits<float>::infinity()
+                                        : std::numeric_limits<float>::max();
   static constexpr int kMaxHexBufferSize = WABT_MAX_FLOAT_HEX;
 
   static float Strto(const char* s, char** endptr) {
@@ -76,7 +82,11 @@ struct FloatTraitsBase<double> {
   using Uint = uint64_t;
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 52;
-  static constexpr float kHugeVal = HUGE_VAL;
+  // See FloatTraitsBase<float>::kHugeVal.  Declared double, unlike upstream:
+  // narrowing to float is harmless for infinity but would not fit max().
+  static constexpr double kHugeVal = std::numeric_limits<double>::has_infinity
+                                         ? std::numeric_limits<double>::infinity()
+                                         : std::numeric_limits<double>::max();
   static constexpr int kMaxHexBufferSize = WABT_MAX_DOUBLE_HEX;
 
   static double Strto(const char* s, char** endptr) {
