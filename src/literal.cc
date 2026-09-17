@@ -63,13 +63,14 @@ struct FloatTraitsBase<float> {
   using Uint = uint32_t;
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 23;
-  // Not HUGE_VALF: AIX defines it as a reinterpret_cast through a byte array,
-  // which is not a core constant expression in C++.  strtof reports overflow by
-  // returning it, and C defines it as infinity where that is representable and
-  // the largest finite value otherwise -- which is what this spells out.
-  static constexpr float kHugeVal = std::numeric_limits<float>::has_infinity
-                                        ? std::numeric_limits<float>::infinity()
-                                        : std::numeric_limits<float>::max();
+#ifdef _AIX
+  // Can't be constexpr on AIX, because it's a reinterpret_cast through a byte
+  // array. This is an AIX bug, because HUGE_VALF is supposed to be a constant
+  // expression.
+  static const float kHugeVal = HUGE_VALF;
+#else
+  static constexpr float kHugeVal = HUGE_VALF;
+#endif
   static constexpr int kMaxHexBufferSize = WABT_MAX_FLOAT_HEX;
 
   static float Strto(const char* s, char** endptr) {
@@ -82,11 +83,12 @@ struct FloatTraitsBase<double> {
   using Uint = uint64_t;
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 52;
-  // See FloatTraitsBase<float>::kHugeVal.  Declared double, unlike upstream:
-  // narrowing to float is harmless for infinity but would not fit max().
-  static constexpr double kHugeVal = std::numeric_limits<double>::has_infinity
-                                         ? std::numeric_limits<double>::infinity()
-                                         : std::numeric_limits<double>::max();
+#ifdef _AIX
+  // Can't be constexpr on AIX; see above.
+  static const double kHugeVal = HUGE_VAL;
+#else
+  static constexpr double kHugeVal = HUGE_VAL;
+#endif
   static constexpr int kMaxHexBufferSize = WABT_MAX_DOUBLE_HEX;
 
   static double Strto(const char* s, char** endptr) {
