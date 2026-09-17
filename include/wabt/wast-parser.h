@@ -172,6 +172,7 @@ class WastParser {
   // Check the maximum allowed declarations.
   Result CheckIndexRange(Location& loc, size_t size, const char* decl);
 
+  void ParseAnnotations(Token& token);
   Result ParseVarText(Token& token, std::string* out_text);
   Result ParseBindVarOpt(std::string* name);
   Result ParseVar(Var* out_var);
@@ -298,6 +299,7 @@ class WastParser {
   Result ParseOutputCommand(CommandPtr*);
 
   Result ParseAction(ActionPtr*);
+  Result ParseScriptModuleNoLpar(std::unique_ptr<ScriptModule>*);
   Result ParseScriptModule(std::unique_ptr<ScriptModule>*);
 
   template <typename T>
