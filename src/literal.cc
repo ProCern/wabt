@@ -64,10 +64,11 @@ struct FloatTraitsBase<float> {
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 23;
 #ifdef _AIX
-  // Can't be constexpr on AIX, because it's a reinterpret_cast through a byte
-  // array. This is an AIX bug, because HUGE_VALF is supposed to be a constant
-  // expression.
-  static const float kHugeVal = HUGE_VALF;
+  // AIX defines HUGE_VAL and HUGE_VALF as reinterpret_cast expressions, which
+  // can't be constexpr.
+  static constexpr float kHugeVal = std::numeric_limits<float>::has_infinity
+                                        ? std::numeric_limits<float>::infinity()
+                                        : std::numeric_limits<float>::max();
 #else
   static constexpr float kHugeVal = HUGE_VALF;
 #endif
@@ -84,8 +85,12 @@ struct FloatTraitsBase<double> {
   static constexpr int kBits = sizeof(Uint) * 8;
   static constexpr int kSigBits = 52;
 #ifdef _AIX
-  // Can't be constexpr on AIX; see above.
-  static const double kHugeVal = HUGE_VAL;
+  // AIX defines HUGE_VAL and HUGE_VALF as reinterpret_cast expressions, which
+  // can't be constexpr.
+  static constexpr double kHugeVal =
+      std::numeric_limits<double>::has_infinity
+          ? std::numeric_limits<double>::infinity()
+          : std::numeric_limits<double>::max();
 #else
   static constexpr double kHugeVal = HUGE_VAL;
 #endif
