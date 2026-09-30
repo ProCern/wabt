@@ -1,0 +1,6 @@
+{
+  "name": "wabt",
+  "dependencies": [
+    "openssl"
+  ]
+}
