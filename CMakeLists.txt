@@ -118,6 +118,12 @@ if (NOT USE_INTERNAL_SHA256)
   endif()
 endif()
 
+# third_party/ is deleted in this fork, so the PicoSHA2 fallback is gone and
+# OpenSSL is effectively required.  Say so here rather than at compile time.
+if (NOT HAVE_OPENSSL_SHA_H AND NOT EXISTS "${WABT_SOURCE_DIR}/third_party/picosha2/picosha2.h")
+  message(FATAL_ERROR "OpenSSL (openssl/sha.h) not found, and the PicoSHA2 fallback is not vendored in this fork")
+endif()
+
 if (WIN32)
   if(${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM64")
     # https://discourse.cmake.org/t/visual-studio-error-unable-to-deploy-local-file-c-x64-release-zero-check/2072
