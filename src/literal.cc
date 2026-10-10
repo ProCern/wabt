@@ -79,7 +79,7 @@ struct FloatTraitsBase<float> {
   static constexpr int kMaxHexBufferSize = WABT_MAX_FLOAT_HEX;
 
   static float Strto(const char* s, char** endptr) {
-    return strtof_l(s, endptr, c_locale);
+    return strtof(s, endptr);
   }
 };
 
@@ -99,7 +99,7 @@ struct FloatTraitsBase<double> {
   static constexpr int kMaxHexBufferSize = WABT_MAX_DOUBLE_HEX;
 
   static double Strto(const char* s, char** endptr) {
-    return strtod_l(s, endptr, c_locale);
+    return strtod(s, endptr);
   }
 };
 
